@@ -6,7 +6,11 @@ ARCH=$(uname -m)
 
 echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
-pacman -Syu --noconfirm lua
+pacman -Syu --noconfirm \
+    kvantum       \
+    lua           \
+    lxqt-qtplugin \
+    qt6ct
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
@@ -20,10 +24,10 @@ get-debloated-pkgs --add-common --prefer-nano ffmpeg-mini
 # if you also have to make nightly releases check for DEVEL_RELEASE = 1
 #
 if [ "${DEVEL_RELEASE-}" = 1 ]; then
- 	package=mgba-git
-  make-aur-package $package
+  PRE_BUILD_CMDS='sed -i "\|io.mgba.mGBA.desktop|d" ./PKGBUILD' make-aur-package mgba-git
+  pacman -Q mgba-qt-git | awk '{print $2; exit}' > ~/version
 else
   package=mgba-qt
-  pacman -Syu --noconfirm $package
+  pacman -S --noconfirm "$package"
+  pacman -Q "$package" | awk '{print $2; exit}' > ~/version
 fi
-pacman -Q "$package" | awk '{print $2; exit}' > ~/version
